@@ -4,6 +4,8 @@ $this->post ('/post', \General::class . ":Post");
 $this->post ('/deletePost', \General::class . ":DeletePost");
 $this->post ('/deleteKomen', \General::class . ":DeleteKomentar");
 $this->post ('/postKomen', \General::class . ":PostKomentar");
+$this->post ('/getPostDataLatest', \General::class . ":GetAllPostLatest");
+$this->post ('/getPostDataPopular', \General::class . ":GetAllPostPopular");
 
 class General extends API {
 
@@ -14,29 +16,72 @@ class General extends API {
         $this->initModel("general");
         $this->initHelper("Image");
 
-        $getFile = $_FILES['img']['name'];
+
+        // return $response->withJSON(array(
+        //     "status" => 200,
+        //     "message" => $file
+        // ));
+
+        
         $file = $_FILES['img'];
+        // if ($file != null) {
+            $uploadImg = $this->imageHelper->upload($file,'imagePost');
 
-        $uploadImg = $this->imageHelper->upload($file,'imagePost');
-
-        $post = $this->generalModel->post(array(
-            ":id_user"=> $this->params["id_user"],
-            ":text"=> $this->params["text"],
-            ":img"=> $uploadImg,
-        ));
-
-        if ($uploadImg) {
+            // $post = $this->generalModel->postWithImage(array(
+            //     ":id_user"=> $this->params["id_user"],
+            //     ":text"=> $this->params["text"],
+            //     ":img"=> $uploadImg,
+            // ));
+            // return $response->withJSON(array(
+            //     "status" => 200,
+            //     "data" => $uploadImg
+            // ));
+            if ($uploadImg == false) {
+                $post = $this->generalModel->post(array(
+                    ":id_user"=> $this->params["id_user"],
+                    ":text"=> $this->params["text"], 
+                ));
+                return $response->withJSON(array(
+                    "status" => 200,
+                    "data" => $post
+                ));
+            }
+            else {
+                $post = $this->generalModel->postWithImage(array(
+                    ":id_user"=> $this->params["id_user"],
+                    ":text"=> $this->params["text"],
+                    ":img"=> $uploadImg,
+                ));
+                return $response->withJSON(array(
+                    "status" => 200,
+                    "data" => $post
+                ));
+            }
             return $response->withJSON(array(
-                "status" => 200,
-                "data" => $post
-            ));
-        }
-        else {
-            return $response->withJSON(array(
-                "status" => false,
-                "message" => 'gagal post'
-            ));
-        }
+                    "status" => false,
+                    "message" => 'gagal post'
+                ));
+        // }
+        // else{
+        //     $post = $this->generalModel->post(array(
+        //         ":id_user"=> $this->params["id_user"],
+        //         ":text"=> $this->params["text"]
+        //     ));
+        //     if ($post) {
+        //         return $response->withJSON(array(
+        //             "status" => 200,
+        //             "message" => "Berhasil"
+        //         ));
+        //     }
+        //     else {
+        //         return $response->withJSON(array(
+        //             "status" => false,
+        //             "message" => 'gagal post'
+        //         ));
+        //     }
+        // }
+
+        
     }
 
     public function DeletePost($request, $response, $args)
@@ -109,6 +154,48 @@ class General extends API {
             return $response->withJSON(array(
                 "status" => false,
                 "message" => 'gagal menghapus komen'
+            ));
+        }
+    }
+
+    public function GetAllPostLatest($request, $response, $args)
+    {
+        $this->params = $request->getParsedBody();
+        $this->initModel("general");
+
+        $stmt = $this->generalModel->getAllPostLatest(array (
+            ":id_user" => $this->params['id_user'],
+        ));
+        if ($stmt) {
+            return $response->withJSON(array(
+                "status" => "200",
+                "data" => $stmt
+            ));
+        }else{
+            return $response->withJSON(array(
+                "status" => "400",
+                "message" => "error"
+            ));
+        }
+    }
+
+    public function GetAllPostPopular($request, $response, $args)
+    {
+        $this->params = $request->getParsedBody();
+        $this->initModel("general");
+
+        $stmt = $this->generalModel->getAllPostPopular(array (
+            ":id_user" => $this->params['id_user'],
+        ));
+        if ($stmt) {
+            return $response->withJSON(array(
+                "status" => "200",
+                "data" => $stmt
+            ));
+        }else{
+            return $response->withJSON(array(
+                "status" => "400",
+                "message" => "error"
             ));
         }
     }

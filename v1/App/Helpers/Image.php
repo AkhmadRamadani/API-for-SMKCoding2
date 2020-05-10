@@ -50,7 +50,7 @@ class ImageHelper extends API{
             return $imgName;
         }
 
-        return $input["error"];
+        return false;
     }
 
     /**
