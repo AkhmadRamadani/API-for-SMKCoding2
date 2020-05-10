@@ -6,6 +6,9 @@ $this->post ('/deleteKomen', \General::class . ":DeleteKomentar");
 $this->post ('/postKomen', \General::class . ":PostKomentar");
 $this->post ('/getPostDataLatest', \General::class . ":GetAllPostLatest");
 $this->post ('/getPostDataPopular', \General::class . ":GetAllPostPopular");
+$this->post ('/getPostDataById', \General::class . ":GetPostDataById");
+$this->post ('/getKomentarById', \General::class . ":GetKomentarbyId");
+$this->post ('/search', \General::class . ":Search");
 
 class General extends API {
 
@@ -198,6 +201,79 @@ class General extends API {
                 "message" => "error"
             ));
         }
+    }
+
+    public function GetPostDataById($request, $response, $args)
+    {
+        $this->params = $request->getParsedBody();
+        $this->initModel("general");
+
+        $stmt = $this->generalModel->getPostDatabyId(array (
+            ":id_user" => $this->params['id_user'],
+            ":id_post" => $this->params['id_post']
+        ));
+
+        $komentar = $this->GetKomentarById($this->params['id_post']);
+
+        if ($stmt) {
+            return $response->withJSON(array(
+                "status" => "200",
+                "dataPost" => $stmt,
+                "komentar" => $komentar
+            ));
+        }else{
+            return $response->withJSON(array(
+                "status" => "400",
+                "message" => "error"
+            ));
+        }
+    }
+
+    public function GetKomentarById($params)
+    {
+        $this->initModel("general");
+
+        $stmt = $this->generalModel->getKomentarbyId(array (
+            ":id_post" => $params
+        ));
+
+        return $stmt;
+        
+    }
+
+    public function Search($request , $response , $args)
+    {
+        $this->params = $request->getParsedBody();
+        $keyword = $this->params["keyword"];
+
+        $selectJoke = $this->SearchJoke($keyword);
+        $selectUser = $this->SearchNama($keyword);
+
+        return $response->withJSON(array(
+            "user" => $selectUser,
+            "joke" => $selectJoke
+        ));
+
+    }
+    public function SearchJoke($params)
+    {
+        $this->initModel('general');
+
+        $select = $this->generalModel->searchJokeText(array(
+            ':text' => $params
+        ));
+        
+        return $select;
+        
+    }
+    public function SearchNama($params)
+    {
+        $this->initModel('general');
+        $select = $this->generalModel->searchUser(array(
+            ':nama' => $params
+        ));
+        
+        return $select;
     }
 
 }

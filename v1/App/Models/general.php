@@ -73,5 +73,56 @@
 
             return $getPost->fetchAll(PDO::FETCH_ASSOC);
         }
+
+        public function getPostDatabyId($params)
+        {
+            $getPost = $this->db->prepare("
+            select *,
+                (select count(sukai.id_suka) from sukai where sukai.id_post = post.id_post) as totalLike, 
+                (select count(sukai.id_suka) from sukai where sukai.id_post=post.id_post AND sukai.id_user = :id_user) as isLiked
+            from post WHERE post.id_post = :id_post 
+            ");
+
+            $getPost->execute($params);
+
+            return $getPost->fetch(PDO::FETCH_ASSOC);
+        }
+
+        public function getKomentarbyId($params)
+        {
+            $getKomen = $this->db->prepare("
+                SELECT komentar.*, user.nama, user.email from komentar, user where komentar.id_user = user.id_user AND
+                komentar.id_post = :id_post
+            ");
+
+            $getKomen->execute($params);
+
+            return $getKomen->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public function searchJokeText($params)
+        {
+            $sql = " SELECT * FROM `post` WHERE `text` LIKE '%:text%' ";
+            foreach( $params AS $key => $value ) {
+                $sql = str_replace( $key, $value, $sql );
+            }
+            $select = $this->db->prepare($sql);
+        
+            $select->execute($params);
+    
+            return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
+        public function searchUser($params)
+        {
+            $sql = " SELECT id_user,nama, email FROM `user` WHERE `nama` LIKE '%:nama%' ";
+            foreach( $params AS $key => $value ) {
+                $sql = str_replace( $key, $value, $sql );
+            }
+            $select = $this->db->prepare($sql);
+        
+            $select->execute($params);
+    
+            return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
 ?>
