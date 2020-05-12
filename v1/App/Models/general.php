@@ -48,11 +48,11 @@
         public function getAllPostLatest($params)
         {
             $getPost = $this->db->prepare("
-            select *, 
+            select post.*, user.id_user,user.nama, user.email, 
                 (select count(komentar.id_komentar) from komentar where komentar.id_post=post.id_post) as totalKomen,
                 (select count(sukai.id_suka) from sukai where sukai.id_post = post.id_post) as totalLike, 
                 (select count(sukai.id_suka) from sukai where sukai.id_post=post.id_post AND sukai.id_user = :id_user) as isLiked
-            from post ORDER BY post.id_post DESC
+            from post, user WHERE post.id_user = user.id_user ORDER BY post.id_post DESC
             ");
 
             $getPost->execute($params);
@@ -62,11 +62,11 @@
         public function getAllPostPopular($params)
         {
             $getPost = $this->db->prepare("
-            select *, 
+            select post.*, user.id_user,user.nama, user.email, 
                 (select count(komentar.id_komentar) from komentar where komentar.id_post=post.id_post) as totalKomen,
                 (select count(sukai.id_suka) from sukai where sukai.id_post = post.id_post) as totalLike, 
                 (select count(sukai.id_suka) from sukai where sukai.id_post=post.id_post AND sukai.id_user = :id_user) as isLiked
-            from post ORDER BY totalLike DESC
+            from post, user ORDER BY totalLike DESC
             ");
 
             $getPost->execute($params);
@@ -102,7 +102,11 @@
 
         public function searchJokeText($params)
         {
-            $sql = " SELECT * FROM `post` WHERE `text` LIKE '%:text%' ";
+            $sql = "select post.*, user.id_user,user.nama, user.email, 
+                (select count(komentar.id_komentar) from komentar where komentar.id_post=post.id_post) as totalKomen,
+                (select count(sukai.id_suka) from sukai where sukai.id_post = post.id_post) as totalLike, 
+                (select count(sukai.id_suka) from sukai where sukai.id_post=post.id_post AND sukai.id_user = :id_user) as isLiked
+            from post, user WHERE post.id_user = user.id_user AND `text` LIKE '%:text%' ";
             foreach( $params AS $key => $value ) {
                 $sql = str_replace( $key, $value, $sql );
             }
@@ -114,7 +118,9 @@
         }
         public function searchUser($params)
         {
-            $sql = " SELECT id_user,nama, email FROM `user` WHERE `nama` LIKE '%:nama%' ";
+            $sql = " SELECT id_user,nama, email,
+            (SELECT count(post.id_post) from post where post.id_user = user.id_user) as totalPost
+                 FROM `user` WHERE `nama` LIKE '%:nama%' ";
             foreach( $params AS $key => $value ) {
                 $sql = str_replace( $key, $value, $sql );
             }

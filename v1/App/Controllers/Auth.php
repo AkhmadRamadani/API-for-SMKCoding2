@@ -78,6 +78,7 @@
 
                     return $response->withJSON(array(
                         "status" => $decrypt,
+                        "data" => $stmt,
                         'token' => $token,
                         "message"=>"Login Berhasil!!!"
                     ));
@@ -146,17 +147,17 @@
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
                 $mail->Username = 'harlowshaffer@gmail.com'; 
-                $mail->Password = '********';
+                $mail->Password = '0897harlow';
 
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587; 
         
-                $mail->setFrom('harlowshaffer@gmail.com', 'Harlow Shaffer Official');
+                $mail->setFrom('no-reply@Jokeee.com', 'Jokeee Official');
                 $mail->addAddress($email);
                 $mail->isHTML(false);
 
                 $mail->Subject = 'Verifikasi Akun Anda';
-                $mail->Body    = 'Haiii, Segera lakukan aktivasi akun anda ya !!!. Klik link ini http://localhost/joke/v1/auth/verifyUser/'.$api_key;
+                $mail->Body    = 'Haiii, Segera lakukan aktivasi akun anda ya !!!. Klik link ini http://192.168.0.21/joke/v1/auth/verifyUser/'.$api_key;
                 
                 if($mail->send()){
                     return true;

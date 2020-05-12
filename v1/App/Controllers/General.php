@@ -167,7 +167,7 @@ class General extends API {
         $this->initModel("general");
 
         $stmt = $this->generalModel->getAllPostLatest(array (
-            ":id_user" => $this->params['id_user'],
+            ":id_user" => $this->params["id_user"],
         ));
         if ($stmt) {
             return $response->withJSON(array(
@@ -246,7 +246,7 @@ class General extends API {
         $this->params = $request->getParsedBody();
         $keyword = $this->params["keyword"];
 
-        $selectJoke = $this->SearchJoke($keyword);
+        $selectJoke = $this->SearchJoke($keyword,$this->params['id_user']);
         $selectUser = $this->SearchNama($keyword);
 
         return $response->withJSON(array(
@@ -255,12 +255,13 @@ class General extends API {
         ));
 
     }
-    public function SearchJoke($params)
+    public function SearchJoke($params,$params2)
     {
         $this->initModel('general');
 
         $select = $this->generalModel->searchJokeText(array(
-            ':text' => $params
+            ':text' => $params,
+            ":id_user" => $params2
         ));
         
         return $select;
