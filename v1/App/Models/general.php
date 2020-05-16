@@ -45,6 +45,23 @@
 
             return $delete->execute($params);
         }
+        public function postLike($params)
+        {
+            $komen = $this->db->prepare("
+                INSERT INTO sukai 
+                VALUES (NULL, :id_post, :id_user)
+            ");
+
+            return $komen->execute($params);
+        }
+        public function deleteLike($params)
+        {
+            $delete = $this->db->prepare("
+                DELETE FROM sukai WHERE id_post = :id_post AND id_user = :id_user
+            ");
+
+            return $delete->execute($params);
+        }
         public function getAllPostLatest($params)
         {
             $getPost = $this->db->prepare("
@@ -66,7 +83,7 @@
                 (select count(komentar.id_komentar) from komentar where komentar.id_post=post.id_post) as totalKomen,
                 (select count(sukai.id_suka) from sukai where sukai.id_post = post.id_post) as totalLike, 
                 (select count(sukai.id_suka) from sukai where sukai.id_post=post.id_post AND sukai.id_user = :id_user) as isLiked
-            from post, user ORDER BY totalLike DESC
+            from post, user WHERE post.id_user = user.id_user ORDER BY totalLike DESC
             ");
 
             $getPost->execute($params);
@@ -77,10 +94,11 @@
         public function getPostDatabyId($params)
         {
             $getPost = $this->db->prepare("
-            select *,
+            select post.*,user.id_user,user.nama, user.email,
+                (select count(komentar.id_komentar) from komentar where komentar.id_post=post.id_post) as totalKomen,
                 (select count(sukai.id_suka) from sukai where sukai.id_post = post.id_post) as totalLike, 
                 (select count(sukai.id_suka) from sukai where sukai.id_post=post.id_post AND sukai.id_user = :id_user) as isLiked
-            from post WHERE post.id_post = :id_post 
+            from post, user WHERE post.id_user = user.id_user AND post.id_post = :id_post 
             ");
 
             $getPost->execute($params);

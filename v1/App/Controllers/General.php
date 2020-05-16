@@ -4,6 +4,8 @@ $this->post ('/post', \General::class . ":Post");
 $this->post ('/deletePost', \General::class . ":DeletePost");
 $this->post ('/deleteKomen', \General::class . ":DeleteKomentar");
 $this->post ('/postKomen', \General::class . ":PostKomentar");
+$this->post ('/deleteLike', \General::class . ":DeleteLike");
+$this->post ('/postLike', \General::class . ":PostLike");
 $this->post ('/getPostDataLatest', \General::class . ":GetAllPostLatest");
 $this->post ('/getPostDataPopular', \General::class . ":GetAllPostPopular");
 $this->post ('/getPostDataById', \General::class . ":GetPostDataById");
@@ -27,18 +29,8 @@ class General extends API {
 
         
         $file = $_FILES['img'];
-        // if ($file != null) {
             $uploadImg = $this->imageHelper->upload($file,'imagePost');
 
-            // $post = $this->generalModel->postWithImage(array(
-            //     ":id_user"=> $this->params["id_user"],
-            //     ":text"=> $this->params["text"],
-            //     ":img"=> $uploadImg,
-            // ));
-            // return $response->withJSON(array(
-            //     "status" => 200,
-            //     "data" => $uploadImg
-            // ));
             if ($uploadImg == false) {
                 $post = $this->generalModel->post(array(
                     ":id_user"=> $this->params["id_user"],
@@ -64,25 +56,6 @@ class General extends API {
                     "status" => false,
                     "message" => 'gagal post'
                 ));
-        // }
-        // else{
-        //     $post = $this->generalModel->post(array(
-        //         ":id_user"=> $this->params["id_user"],
-        //         ":text"=> $this->params["text"]
-        //     ));
-        //     if ($post) {
-        //         return $response->withJSON(array(
-        //             "status" => 200,
-        //             "message" => "Berhasil"
-        //         ));
-        //     }
-        //     else {
-        //         return $response->withJSON(array(
-        //             "status" => false,
-        //             "message" => 'gagal post'
-        //         ));
-        //     }
-        // }
 
         
     }
@@ -126,13 +99,13 @@ class General extends API {
         if ($komenPost) {
             return $response->withJSON(array(
                 "status" => 200,
-                "message" => "Berhasil mengirim komentar"
+                "message" => $komenPost
             ));
         }
         else {
             return $response->withJSON(array(
-                "status" => false,
-                "message" => 'gagal mengirim komentar'
+                "status" => 400,
+                "message" => false
             ));
         }
     }
@@ -160,7 +133,54 @@ class General extends API {
             ));
         }
     }
+    public function PostLike($request, $response, $args)
+    {
+        $this->params = $request->getParsedBody();
 
+        $this->initModel("general");
+
+        $komenPost = $this->generalModel->postLike(array(
+            ":id_post" => $this->params['id_post'],
+            ":id_user" => $this->params['id_user']
+        ));
+
+        if ($komenPost) {
+            return $response->withJSON(array(
+                "status" => true,
+                "message" => "Berhasil mengirim Like"
+            ));
+        }
+        else {
+            return $response->withJSON(array(
+                "status" => false,
+                "message" => 'gagal mengirim Like'
+            ));
+        }
+    }
+    public function DeleteLike($request, $response, $args)
+    {
+        $this->params = $request->getParsedBody();
+
+        $this->initModel("general");
+
+        $komenPost = $this->generalModel->deleteLike(array(
+            ":id_post" => $this->params['id_post'],
+            ":id_user" => $this->params['id_user']
+        ));
+
+        if ($komenPost) {
+            return $response->withJSON(array(
+                "status" => true,
+                "message" => "Berhasil menghapus Like"
+            ));
+        }
+        else {
+            return $response->withJSON(array(
+                "status" => false,
+                "message" => 'gagal menghapus Like'
+            ));
+        }
+    }
     public function GetAllPostLatest($request, $response, $args)
     {
         $this->params = $request->getParsedBody();

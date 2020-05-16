@@ -36,8 +36,10 @@ class ImageHelper extends API{
      *  
      **/
     public function upload ( $input, $path, $size = "full" ) {
-
-        $imgName    = $this->_generateName () . ".jpg";
+        
+        $ext = pathinfo($input['name'], PATHINFO_EXTENSION);
+        $imgName    = $this->_generateName () .".".$ext;
+        // $imgName    = $this->_generateName () .".jpg";
         $fileName   = $this->uploadPath . $path . "/" . $imgName;
 
         if ( isset ( $input["tmp_name"] ) ) {
@@ -59,8 +61,9 @@ class ImageHelper extends API{
      *  
      **/
     public function uploadMuch ( $input, $path, $name, $size = "full") {
-
-        $fileName   = $this->uploadPath . $path . "/" . $this->_generateName ($name) . ".jpg";
+        $ext = pathinfo($input['name'], PATHINFO_EXTENSION);
+        $fileName   = $this->uploadPath . $path . "/" . $this->_generateName ($name) .".".$ext;
+        // $fileName   = $this->uploadPath . $path . "/" . $this->_generateName ($name) .".jpg";
 
         $upload     = move_uploaded_file ( $input, $fileName );
 
